@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML_project CNN_Gen_2</title>
+     <link rel="stylesheet" href="style.css">
+     
+</head>
+<body>
+    <div class="panel">
+        <div class="title">
+            <p>CNN GEN 2 : Apple vs Orange</p>
+        </div>
+
+        <div class="body">
+            <div class="left-pane">
+                <div class="image_preview">
+                    <div class="upload-area" id="uploadArea">
+                        <p id="uploadHint">Click to select or drag & drop an image</p>
+                        <input type="file" accept="image/*" onchange="loadFile(event)" id="imgInp">
+                        <img id="preview" alt="Selected image" />
+                    </div>
+                </div>
+                <button type="button" onclick="apicall()">Submit</button>
+            </div>
+
+            <div class="right-pane" id="resultPane" hidden>
+                <div class="result-title" id="predictionLine">The prediction is :</div>
+                <div class="result-row" id="appleLine">Apple :</div>
+                <div class="result-row" id="orangeLine">Orange :</div>
+
+                <div class="result-actions">
+                    <button type="button" id="btnCorrect" onclick="del_file_stored()">Correct</button>
+                    <button type="button" id="btnIncorrect" onclick="retrain()">Incorrect</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
