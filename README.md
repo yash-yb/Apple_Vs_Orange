@@ -1,7 +1,7 @@
 # Apple vs Orange Image Classifier
 
 This project implements a **simple neural network from scratch using
-NumPy** to classify images as **Apple or Orange**.
+NumPy and FastAPI** to classify images as **Apple or Orange**.
 
 Unlike typical ML projects that use TensorFlow or PyTorch, this project
 **builds the neural network manually**, including:
@@ -53,10 +53,36 @@ Gradient Descent
 ------------------------------------------------------------------------
 
 # Installation
+Download a Dataset which is in this form : 
+
+    <Directory_name-where Repo is cloned>/
+    │
+    ├── ModelTuning/
+    │   │
+    │   ├── Training/
+    │   │   ├── Apple/
+    │   │   │   ├── image1.jpg
+    │   │   │   ├── image2.jpg
+    │   │   │   └── ...
+    │   │   └── Orange/
+    │   │       ├── image1.jpg
+    │   │       ├── image2.jpg
+    │   │       └── ...
+    │   │
+    │   └── Testing/
+    │       ├── Apple/
+    │       │   ├── image1.jpg
+    │       │   ├── image2.jpg
+    │       │   └── ...
+    │       └── Orange/
+    │           ├── image1.jpg
+    │           ├── image2.jpg
+    │           └── ...
+
 
 Install dependencies:
 
-pip install numpy pillow "fastapi[standard]"
+    pip install numpy pillow "fastapi[standard]"
 
 ------------------------------------------------------------------------
 
@@ -64,15 +90,15 @@ pip install numpy pillow "fastapi[standard]"
 
 Run:
 
-python -m http.server 5500
+    python -m http.server 5500
 
 and on a new terminal run : 
 
-fastapi dev
+    fastapi dev
 
 then go to : 
 
-localhost:5500
+    localhost:5500
 
 You will see:
 
@@ -87,11 +113,11 @@ Even further.
 
 Run : 
 
-python CNN_gen3.py
+    python CNN_gen3.py
 
 Then by pressing : 
 
-A
+    A
 
 The program will:
 
@@ -114,7 +140,7 @@ Training complete!
 
 Press:
 
-B
+    B
 
 Then enter:
 
