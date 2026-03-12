@@ -33,7 +33,9 @@ networks work internally.**
 
 Input Layer (3072 features)\
 ↓\
-Hidden Layer (64 neurons, Sigmoid activation)\
+Hidden Layer (64 neurons, Relu activation)\
+↓\
+Hidden Layer (32 neurons, Sigmoid activation)\
 ↓\
 Output Layer (1 neuron, Sigmoid)
 
