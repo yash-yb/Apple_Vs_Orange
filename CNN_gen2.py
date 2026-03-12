@@ -15,12 +15,14 @@ APPLE_LABEL = 1
 ORANGE_LABEL = 0
 
 IMAGE_SIZE: Tuple[int, int] = (32, 32)
-HIDDEN_SIZE = 64
+HIDDEN_SIZE1 = 64
+HIDDEN_SIZE2 = 32
 OUTPUT_SIZE = 1
 LEARNING_RATE = 0.01
 EPOCHS = 100
 MODEL_PATH = "model_arch_data.json"
 EPS = 1e-7
+L2_LAMBDA = 1e-4
 
 
 def preprocess_image_array(
@@ -92,59 +94,106 @@ def sigmoid_derivative(sigmoid_output: np.ndarray) -> np.ndarray:
     return sigmoid_output * (1.0 - sigmoid_output)
 
 
+def relu(x: np.ndarray) -> np.ndarray:
+    return np.maximum(0.0, x)
+
+
+def relu_derivative(relu_output: np.ndarray) -> np.ndarray:
+    return (relu_output > 0.0).astype(np.float32)
+
+
 def initialize_parameters(input_size: int) -> dict:
     np.random.seed(42)
 
-    W1 = np.random.randn(input_size, HIDDEN_SIZE) * 0.01
-    b1 = np.zeros((1, HIDDEN_SIZE), dtype=np.float32)
+    # He initialization for ReLU layers
+    W1 = np.random.randn(input_size, HIDDEN_SIZE1).astype(np.float32) * np.sqrt(
+        2.0 / input_size
+    )
+    b1 = np.zeros((1, HIDDEN_SIZE1), dtype=np.float32)
 
-    W2 = np.random.randn(HIDDEN_SIZE, OUTPUT_SIZE) * 0.01
-    b2 = np.zeros((1, OUTPUT_SIZE), dtype=np.float32)
+    W2 = np.random.randn(HIDDEN_SIZE1, HIDDEN_SIZE2).astype(np.float32) * np.sqrt(
+        2.0 / HIDDEN_SIZE1
+    )
+    b2 = np.zeros((1, HIDDEN_SIZE2), dtype=np.float32)
 
-    return {"W1": W1, "b1": b1, "W2": W2, "b2": b2}
+    # Output layer init can be smaller
+    W3 = (np.random.randn(HIDDEN_SIZE2, OUTPUT_SIZE).astype(np.float32)) * 0.01
+    b3 = np.zeros((1, OUTPUT_SIZE), dtype=np.float32)
+
+    return {"W1": W1, "b1": b1, "W2": W2, "b2": b2, "W3": W3, "b3": b3}
 
 
 def forward_pass(X: np.ndarray, params: dict) -> Tuple[dict, dict]:
     """Compute forward pass and return intermediate activations."""
-    W1, b1, W2, b2 = params["W1"], params["b1"], params["W2"], params["b2"]
+    W1, b1 = params["W1"], params["b1"]
+    W2, b2 = params["W2"], params["b2"]
+    W3, b3 = params["W3"], params["b3"]
 
     z1 = np.dot(X, W1) + b1
-    a1 = sigmoid(z1)
+    a1 = relu(z1)
 
     z2 = np.dot(a1, W2) + b2
-    a2 = sigmoid(z2)
+    a2 = relu(z2)
 
-    cache = {"z1": z1, "a1": a1, "z2": z2, "a2": a2}
-    return cache, {"y_hat": a2}
+    z3 = np.dot(a2, W3) + b3
+    a3 = sigmoid(z3)
+
+    cache = {"z1": z1, "a1": a1, "z2": z2, "a2": a2, "z3": z3, "a3": a3}
+    return cache, {"y_hat": a3}
 
 
-def compute_loss(y_hat: np.ndarray, y: np.ndarray) -> float:
-    """Binary cross-entropy loss for sigmoid output."""
+def compute_loss(y_hat: np.ndarray, y: np.ndarray, params: dict) -> float:
+    """Binary cross-entropy loss + optional L2 weight decay."""
     y_hat_clipped = np.clip(y_hat, EPS, 1.0 - EPS)
-    loss = -np.mean(
+    bce = -np.mean(
         y * np.log(y_hat_clipped) + (1.0 - y) * np.log(1.0 - y_hat_clipped)
     )
-    return float(loss)
+    m = y.shape[0]
+    l2 = (
+        L2_LAMBDA
+        / (2.0 * m)
+        * (
+            float(np.sum(params["W1"] ** 2))
+            + float(np.sum(params["W2"] ** 2))
+            + float(np.sum(params["W3"] ** 2))
+        )
+    )
+    return float(bce + l2)
 
 
 def backward_pass(X: np.ndarray, y: np.ndarray, params: dict, cache: dict) -> dict:
     """Compute gradients of the parameters using backpropagation."""
-    a1, a2 = cache["a1"], cache["a2"]
-    W2 = params["W2"]
+    a1, a2, a3 = cache["a1"], cache["a2"], cache["a3"]
+    W2, W3 = params["W2"], params["W3"]
 
     m = X.shape[0]
 
     # Output layer gradient
-    dz2 = a2 - y
+    dz3 = a3 - y
+    dW3 = np.dot(a2.T, dz3) / m
+    db3 = np.sum(dz3, axis=0, keepdims=True) / m
+    dW3 += (L2_LAMBDA / m) * params["W3"]
+
+    # Hidden layer 2 gradient (ReLU)
+    dz2 = np.dot(dz3, W3.T) * relu_derivative(a2)
     dW2 = np.dot(a1.T, dz2) / m
     db2 = np.sum(dz2, axis=0, keepdims=True) / m
+    dW2 += (L2_LAMBDA / m) * params["W2"]
 
-    # Hidden layer gradient
-    dz1 = np.dot(dz2, W2.T) * sigmoid_derivative(a1)
+    # Hidden layer 1 gradient (ReLU)
+    dz1 = np.dot(dz2, W2.T) * relu_derivative(a1)
     dW1 = np.dot(X.T, dz1) / m
     db1 = np.sum(dz1, axis=0, keepdims=True) / m
+    dW1 += (L2_LAMBDA / m) * params["W1"]
 
-    return {"dW1": dW1, "db1": db1, "dW2": dW2, "db2": db2}
+    return {
+        "dW1": dW1,
+        "db1": db1,
+        "dW2": dW2,
+        "db2": db2,
+        "dW3": dW3,
+        "db3": db3,
+    }
 
 
 def update_parameters(params: dict, grads: dict, learning_rate: float = LEARNING_RATE) -> dict:
@@ -153,6 +202,8 @@ def update_parameters(params: dict, grads: dict, learning_rate: float = LEARNING
     params["b1"] -= learning_rate * grads["db1"]
     params["W2"] -= learning_rate * grads["dW2"]
     params["b2"] -= learning_rate * grads["db2"]
+    params["W3"] -= learning_rate * grads["dW3"]
+    params["b3"] -= learning_rate * grads["db3"]
     return params
 
 
@@ -162,6 +213,8 @@ def save_model(params: dict, path: str = MODEL_PATH) -> None:
         "B1": params["b1"].tolist(),
         "W2": params["W2"].tolist(),
         "B2": params["b2"].tolist(),
+        "W3": params["W3"].tolist(),
+        "B3": params["b3"].tolist(),
     }
     with open(path, "w") as file:
         json.dump(model_arch_dict, file, indent=4)
@@ -177,6 +230,8 @@ def load_model(path: str = MODEL_PATH) -> dict:
         "b1": np.array(model_arch_dict["B1"], dtype=np.float32),
         "W2": np.array(model_arch_dict["W2"], dtype=np.float32),
         "b2": np.array(model_arch_dict["B2"], dtype=np.float32),
+        "W3": np.array(model_arch_dict["W3"], dtype=np.float32),
+        "b3": np.array(model_arch_dict["B3"], dtype=np.float32),
     }
 
 
@@ -196,7 +251,7 @@ def train() -> None:
         cache, outputs = forward_pass(X, params)
         y_hat = outputs["y_hat"]
 
-        loss = compute_loss(y_hat, y)
+        loss = compute_loss(y_hat, y, params)
         mse = float(np.mean((y_hat - y) ** 2))
 
         grads = backward_pass(X, y, params, cache)
@@ -262,30 +317,13 @@ def continue_training(
     save_model(params)
     print("Single-image fine-tune complete and saved to JSON.")
 
-
-
-
-
-
 def main() -> None:
     user_input = input(
         "Press A(start from scratch) or B(train on a single image) "
         "and anything else to exit: "
     ).strip().lower()
-
-    
-    
-    
-    
     if user_input == "a":
         train()
-    
-    
-    
-    
-    
-    
-    
     elif user_input == "b":
         file = input("Enter address of the file: ").strip()
         label_str = input("Enter Apple or Orange: ").strip().lower()
@@ -294,7 +332,6 @@ def main() -> None:
         continue_training(file, label)
     else:
         print("Training cancelled.")
-
 
 if __name__ == "__main__":
     main()
