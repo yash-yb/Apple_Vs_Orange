@@ -56,7 +56,7 @@ Gradient Descent
 
 Install dependencies:
 
-pip install numpy pillow
+pip install numpy pillow "fastapi[standard]"
 
 ------------------------------------------------------------------------
 
@@ -64,17 +64,32 @@ pip install numpy pillow
 
 Run:
 
-python testing.py
+python -m http.server 5500
+
+and on a new terminal run : 
+
+fastapi dev
+
+then go to : 
+
+localhost:5500
 
 You will see:
 
-Press A(start from scratch) or B(train on a single image)
+A webpage where you can upload an image to be checked,
+and then by clicking on the submit button you can check the prediction of the ML model, 
+you can also select if the model is correct or incorrect, this is just there to fine our model
+Even further.
 
 ------------------------------------------------------------------------
 
 # Training From Scratch
 
-Press:
+Run : 
+
+python CNN_gen3.py
+
+Then by pressing : 
 
 A
 
