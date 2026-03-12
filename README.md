@@ -1,4 +1,4 @@
-# 🍎 Apple vs Orange Image Classifier
+# Apple vs Orange Image Classifier
 
 This project implements a **simple neural network from scratch using
 NumPy** to classify images as **Apple or Orange**.
@@ -16,7 +16,7 @@ networks work internally.**
 
 ------------------------------------------------------------------------
 
-# 🚀 Features
+# Features
 
 -   Neural Network implemented **from scratch**
 -   Uses **NumPy for calculations**
@@ -29,7 +29,7 @@ networks work internally.**
 
 ------------------------------------------------------------------------
 
-# 🧠 Model Architecture
+#  Model Architecture
 
 Input Layer (3072 features)\
 ↓\
@@ -52,18 +52,7 @@ Gradient Descent
 
 ------------------------------------------------------------------------
 
-# 📂 Dataset Structure
-
-Your dataset should look like this:
-
-project/ │ ├── ModelTuning/ │ └── Training/ │ ├── Apple/ │ │ ├──
-apple1.jpg │ │ ├── apple2.png │ │ └── ... │ │ │ └── Orange/ │ ├──
-orange1.jpg │ ├── orange2.png │ └── ... │ ├── model_arch_data.json ├──
-main.py └── README.md
-
-------------------------------------------------------------------------
-
-# ⚙️ Installation
+# Installation
 
 Install dependencies:
 
@@ -71,11 +60,11 @@ pip install numpy pillow
 
 ------------------------------------------------------------------------
 
-# ▶️ Running the Program
+# Running the Program
 
 Run:
 
-python main.py
+python testing.py
 
 You will see:
 
@@ -83,7 +72,7 @@ Press A(start from scratch) or B(train on a single image)
 
 ------------------------------------------------------------------------
 
-# 🏋️ Training From Scratch
+# Training From Scratch
 
 Press:
 
@@ -106,7 +95,7 @@ Training complete!
 
 ------------------------------------------------------------------------
 
-# 🔧 Fine‑Tuning With One Image
+# Fine‑Tuning With One Image
 
 Press:
 
@@ -131,7 +120,7 @@ After update → prob_apple=0.61 predicted=Apple
 
 ------------------------------------------------------------------------
 
-# 🖼 Image Processing
+# Image Processing
 
 Each image is:
 
@@ -146,7 +135,7 @@ Final input size:
 
 ------------------------------------------------------------------------
 
-# 📁 Model File
+# Model File
 
 The trained model is stored in:
 
@@ -161,7 +150,7 @@ Stored parameters:
 
 ------------------------------------------------------------------------
 
-# ⚠️ Limitations
+# Limitations
 
 This is a **basic educational neural network**, so it does not include:
 
@@ -174,7 +163,7 @@ Accuracy depends heavily on dataset quality.
 
 ------------------------------------------------------------------------
 
-# 💡 Possible Improvements
+# Possible Improvements
 
 You could extend this project by adding:
 
@@ -187,6 +176,6 @@ You could extend this project by adding:
 
 ------------------------------------------------------------------------
 
-# 📜 License
+# License
 
 This project is open-source and free to use for learning purposes.
